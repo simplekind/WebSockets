@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSockets</title>
+</head>
+<body>
+    <script>
+        webSocket = new WebSocket('ws://localhost:3000');
+        webSocket.onMessage = msg =>{
+            const res = JSON.parse(msg.data);
+            console.log(res);
+        };
+    </script>
+</body>
+</html>

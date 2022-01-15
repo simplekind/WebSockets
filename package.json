@@ -1,0 +1,15 @@
+{
+  "name": "socket-multi-player-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "H",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.15",
+    "websocket": "^1.0.34"
+  }
+}
