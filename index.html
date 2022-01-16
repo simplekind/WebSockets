@@ -7,12 +7,66 @@
     <title>WebSockets</title>
 </head>
 <body>
+    <h1>WebSockets Multiplayer</h1>
+    <button id="CreateBtn">New Game</button>
+    <button id="JoinBtn">Join Game</button>
+    <input type="text" name="GameId" id="GameId">
+    <button id="copy"><span id="CopyText">Copy</span></button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
-        webSocket = new WebSocket('ws://localhost:3000');
-        webSocket.onMessage = msg =>{
+        const CreateBtn = document.getElementById("CreateBtn");
+        const JoinBtn = document.getElementById("JoinBtn");
+        var   GameId= null;
+        var   clientId= null;
+        // Creating a req to webSocket
+        webSocket = new WebSocket('ws://localhost:3001');
+        webSocket.onmessage = msg =>{
             const res = JSON.parse(msg.data);
             console.log(res);
+            if(res.method=="connect"){
+                clientId = res.clientId ;
+                console.log(clientId);
+            }
+            if(res.method=="create"){
+                console.log(`A Game for ${res.game} is created successfully!`);
+                GameId = res.game.gameId;
+            }
+            if(res.method=="join"){
+                console.log(`A Game has been joined ${JSON.stringify(res,4,null)} !`);
+            }
+            if(res.method=="err"){
+                console.log("Error Game not found...");
+            }
         };
+
+        // Reqest to server to create a new game
+        CreateBtn.addEventListener("click", function(event){
+            console.log("CreateBtn clicked!");
+            const req = {
+                "method":"create",
+                "clientId":clientId
+            }
+            webSocket.send(JSON.stringify(req)) ;
+        }) 
+        
+        // Reqest to server to join a new game or join a game that has been created
+        JoinBtn.addEventListener("click", function(event) {
+            console.log("JointBtn clicked!");
+            console.log(GameId);
+            if(GameId==null) {
+                if( document.getElementById("GameId").value == null){
+                    event.preventDefault();
+                }else{
+                    GameId = document.getElementById("GameId").value ;    
+                }
+            }
+            const req = {
+                "method": "join",
+                "clientId":clientId,
+                "gameId":GameId
+            }
+            webSocket.send(JSON.stringify(req)) ;
+        })
     </script>
 </body>
 </html>

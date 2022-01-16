@@ -9,6 +9,7 @@
   "author": "H",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.17.2",
     "nodemon": "^2.0.15",
     "websocket": "^1.0.34"
   }
