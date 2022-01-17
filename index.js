@@ -28,7 +28,8 @@ webSocketServer.on('request',(req)=>{
             games.set(gameId,{
                 "gameId":gameId,
                 "tokens":20,
-                "players": []
+                "players": [],
+                "state": {}
             })
             const res = {       // creating a response
                 "method":"create",
@@ -43,7 +44,6 @@ webSocketServer.on('request',(req)=>{
             const gameId= req.gameId;
             if(!games.has(gameId)){
                 console.error('Game not found with id: ' + gameId);
-                clientId.connection.send(JSON.stringify({"method":err})) ;
                 return ;
             }
             const game = games.get(gameId);
@@ -56,12 +56,12 @@ webSocketServer.on('request',(req)=>{
             }else if (game.players.length==1){
                 game.players.push({
                     'clientId': clientId,
-                    color: "Blue"
+                    'color': "Blue"
                 })
             }else if (game.players.length==2){
                 game.players.push({
                     'clientId': clientId,
-                    color: "Green"
+                    'color': "Green"
                 })
             }else{
                 console.log("More players are trying to join . ABORTING their req...");
@@ -76,6 +76,26 @@ webSocketServer.on('request',(req)=>{
             game.players.forEach(function(player){
                 clients.get(player.clientId).connection.send(JSON.stringify(res));
             }) 
+        }
+        if(req.method=="play"){
+            const clientId = req.clientId ;
+            const gameId = req.gameId;
+            const TokenId = req.TokenId;
+            console.log(games.get(gameId));
+            let   gameState = games.get(gameId).state ;
+            const playerColor = req.playerColor;
+            if(!gameState)
+                gameState = {} ;
+            gameState[TokenId]=playerColor;
+            const game = games.get(gameId) ;
+            game.state= gameState;
+            games.set(gameId, game);
+            res = {"method":"update","state":games.get(gameId).state};
+            console.log("length is "+Object.keys(gameState).length)
+            // console.log(JSON.stringify(games.get(gameId).state))
+            game.players.forEach(player=>{
+                clients.get(player.clientId).connection.send(JSON.stringify(res));
+            })
         }
     });
     // creating a client GUID
@@ -106,7 +126,6 @@ httpServer.listen(serverPort,hostname,()=>{
 app.listen(clientPort, function(){
     console.log(`Client Server started on http://${hostname}:${clientPort}/`);
 })
-
 // GUID of 32 charachters 
 const guid=()=> {
     const s4=()=> Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);     

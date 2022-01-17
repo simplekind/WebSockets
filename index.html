@@ -5,19 +5,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSockets</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 </head>
 <body>
     <h1>WebSockets Multiplayer</h1>
     <button id="CreateBtn">New Game</button>
     <button id="JoinBtn">Join Game</button>
     <input type="text" name="GameId" id="GameId">
-    <button id="copy"><span id="CopyText">Copy</span></button>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <div id="clients">
+        <p><span id="client_id"></span></p>
+    </div>
+    <div id="gameIdDiv"></div>
+    <div id="divBoard"></div>
     <script>
-        const CreateBtn = document.getElementById("CreateBtn");
-        const JoinBtn = document.getElementById("JoinBtn");
-        var   GameId= null;
-        var   clientId= null;
+        const CreateBtn   =  document.getElementById("CreateBtn") ;
+        const JoinBtn     =  document.getElementById("JoinBtn")   ;
+        const clientsDiv  =  document.getElementById("clients")   ;
+        const gameDiv     =  document.getElementById("gameIdDiv") ;
+        const divBoard    =  document.getElementById("divBoard")  ;
+        var   GameId      =  null                                 ;
+        var   clientId    =  null                                 ;
+        var   client_id   =  document.getElementById("client_id") ;
+        var   playerColor =  null                                 ;
         // Creating a req to webSocket
         webSocket = new WebSocket('ws://localhost:3001');
         webSocket.onmessage = msg =>{
@@ -26,13 +35,72 @@
             if(res.method=="connect"){
                 clientId = res.clientId ;
                 console.log(clientId);
+                client_id.textContent=clientId;
             }
             if(res.method=="create"){
                 console.log(`A Game for ${res.game} is created successfully!`);
                 GameId = res.game.gameId;
+                while(gameDiv.firstChild)
+                    gameDiv.removeChild(gameDiv.firstChild);
+                const d = document.createElement("div");
+                d.style.width ="200px";
+                d.style.backgroundColor="black";
+                d.style.borderColor="white";
+                d.style.color="white";
+                d.style.borderWidth="10px";
+                d.style.borderRadius="30px";
+                d.innerHTML+=`<span id="copyText2">${GameId}</span>`;
+                d.innerHTML+=`<button type="button" id="copy" onclick="withoutJquery();">Copy</button>`;
+                gameDiv.appendChild(d);
             }
             if(res.method=="join"){
+                const game = res.game;
+                while(clientsDiv.firstChild)
+                    clientsDiv.removeChild(clientsDiv.firstChild);
+                game.players.forEach(function(player){
+                    const d = document.createElement("div");
+                    d.style.width ="200px";
+                    d.style.backgroundColor="black";
+                    d.style.borderColor=player.color;
+                    d.style.color=player.color;
+                    d.style.borderWidth="5px";
+                    d.style.borderRadius="30px";
+                    d.textContent=player.clientId ;
+                    if(clientId==player.clientId)
+                        playerColor = player.color;
+                    clientsDiv.appendChild(d);
+                })
                 console.log(`A Game has been joined ${JSON.stringify(res,4,null)} !`);
+                while(divBoard.firstChild)
+                    divBoard.removeChild(divBoard.firstChild);
+                for(var i=0; i<game.tokens; i++){
+                    const hover = document.createElement('button');
+                    hover.id='token'+(i+1); 
+                    hover.tag=i+1;
+                    hover.style.width="200px";
+                    hover.style.height="150px";
+                    hover.addEventListener("mouseover",function(e){
+                        hover.style.backgroundColor=playerColor ;
+                        const req = {
+                            "method": "play",
+                            "clientId":clientId,
+                            "gameId":GameId,
+                            "TokenId":hover.tag,
+                            "playerColor":playerColor
+                        }
+                        webSocket.send(JSON.stringify(req));
+                    })
+                    divBoard.appendChild(hover);
+                }
+            }
+            if(res.method=="update"){
+                console.log("Hey check out bruh "+JSON.stringify(res.state,4,"  "));
+                for (const tokenID of Object.keys(res.state)){
+                    const token = document.getElementById('token'+tokenID);
+                    token.style.backgroundColor = res.state[tokenID];
+                    console.log("hey check out color"+token.style.backgroundColor);
+                }
+                webSocket.send(JSON.stringify(res));
             }
             if(res.method=="err"){
                 console.log("Error Game not found...");
@@ -67,6 +135,20 @@
             }
             webSocket.send(JSON.stringify(req)) ;
         })
+
+        function withoutJquery(){
+            console.time('time2');
+            var temp=document.createElement('input');
+            var texttoCopy=document.getElementById('copyText2').innerHTML;
+            temp.type='input';
+            temp.setAttribute('value',texttoCopy);
+            document.body.appendChild(temp);
+                temp.select();
+            document.execCommand("copy");
+            temp.remove();
+            console.timeEnd('time2');
+            document.getElementById('copy').innerText="Copied!";
+        }
     </script>
 </body>
 </html>
