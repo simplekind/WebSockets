@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSockets</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Nunito:wght@200&family=Open+Sans+Condensed:wght@300&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+   <style>
+        
+        body { 
+            font-family: 'Noto Sans', sans-serif;
+            font-family: 'Nunito', sans-serif;
+            font-family: 'Open Sans Condensed', sans-serif;
+            font-family: 'Ubuntu', sans-serif;
+            color:white;
+            background-color: #000000;
+        }
+        
+        .item1{
+            width: 1000px;
+            height: 1250px;
+            border-radius: 100px 0 0px 100px;
+            background: radial-gradient(76.75% 76.75% at 70% 23.25%, #ff0000d1 0%, #ff00eb59 100%);
+            filter: blur(80px);
+            position: absolute;
+            right: 0px;
+            z-index: -1;
+        }
+        
+        .item2{
+            width: 1000px;
+            height: 1250px;
+            border-radius: 100px 0 0px 100px;
+            background: radial-gradient(76.75% 76.75% at 70% 23.25%, #00aeffd1 0%, #0026ff59 100%);
+            filter: blur(80px);
+            position: absolute;
+            left: 0px;
+            z-index: -1;
+        }
+
+        #title{
+            text-align: center;
+            font-size: 4.2em;
+            margin:2em;
+        }
+        .gameBtnContainer{
+            display: flex;
+            margin:auto;
+            flex-direction: row;
+            justify-content:center;
+            align-items:center;
+            margin-bottom: 3.2em;
+        }
+
+        .gamebtn{
+            margin-right: 1.8em;
+        }
+        
+        input[type=text]{
+            width:50%;
+            border:2px solid #aaa;
+            border-radius:4px;
+            margin:8px 0;
+            outline:none;
+            padding:8px;
+            box-sizing:border-box;
+            transition:.3s;
+            text-align:center;
+            background: linear-gradient(100deg, rgb(41 35 35 / 0%) 0%, rgb(0 0 0) 65%,rgb(41 35 35 / 0%) 80%);
+            font-family: 'Noto Sans', sans-serif;
+            font-family: 'Nunito', sans-serif;
+            font-family: 'Open Sans Condensed', sans-serif;
+            font-family: 'Ubuntu', sans-serif;
+        }
+        
+        input[type=text]:focus{
+            border-color:dodgerBlue;
+            box-shadow:0 0 8px 0 dodgerBlue;
+        }
+        
+        .group{ 
+            position:relative; 
+            margin-bottom:45px; 
+        }
+        input{
+            font-size:18px;
+            padding:10px 10px 10px 5px;
+            display:block;
+            width:300px;
+            border:none;
+            border-bottom:1px solid #757575;
+        }
+
+        input:focus{ outline:none; }
+
+        label{
+            color:#999; 
+            font-size:18px;
+            font-weight:normal;
+            position:absolute;
+            pointer-events:none;
+            left:5px;
+            top:10px;
+            transition:0.2s ease all; 
+            -moz-transition:0.2s ease all; 
+            -webkit-transition:0.2s ease all;
+        }
+
+        input:focus ~ label, input:valid ~ label{
+            top:-20px;
+            font-size:14px;
+            color:#5264AE;
+        }
+
+        input#GameId {
+            color: white;
+        }
+        
+        .bar{ 
+            position:relative; 
+            display:block;
+             width:300px; 
+        }
+        .bar:before, .bar:after{
+            content:'';
+            height:2px; 
+            width:0;
+            bottom:1px; 
+            position:absolute;
+            background:#5264AE; 
+            transition:0.2s ease all; 
+            -moz-transition:0.2s ease all; 
+            -webkit-transition:0.2s ease all;
+        }
+        .bar:before {
+            left:50%;
+        }
+        .bar:after {
+            right:50%; 
+        }
+
+        input:focus ~ .bar:before, input:focus ~ .bar:after {
+            width:50%;
+        }
+
+        .highlight {
+            position:absolute;
+            height:60%; 
+            width:100px; 
+            top:25%; 
+            left:0;
+            pointer-events:none;
+            opacity:0.5;
+        }
+
+        input:focus ~ .highlight {
+            -webkit-animation:inputHighlighter 0.3s ease;
+            -moz-animation:inputHighlighter 0.3s ease;
+            animation:inputHighlighter 0.3s ease;
+        }
+
+        @-webkit-keyframes inputHighlighter {
+            from { background:#5264AE; }
+            to{ width:0; background:transparent; }
+        }
+        @-moz-keyframes inputHighlighter {
+            from { background:#5264AE; }
+            to{ width:0; background:transparent; }
+        }
+        @keyframes inputHighlighter {
+            from { background:#5264AE; }
+            to{ width:0; background:transparent; }
+        } 
+
+        .group,.highlight,.bar,#gameIdDiv{
+            display: flex;
+            margin:auto;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .group,#gameIdDiv{
+            margin-bottom:2.2rem;
+        }
+
+        #copyText2{
+            text-align:center;
+        }
+
+        #divBoard{
+            display: grid;
+            grid-column-start: 1;
+            grid-column-end: 10;
+            grid-template-columns: repeat(auto-fit, minmax(200px,2fr));
+            /* grid-column-gap: 125px; */
+            grid-row-gap: 50px;
+            padding:10px;
+            /* justify-content: center; */
+            /* align-items: center; */
+        }
+
+        .glass{ 
+            width: 505px;
+            height: 301px;
+            background: linear-gradient(152.97deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+            backdrop-filter: blur(25px);
+            border-radius: 16px;
+            margin: 20px;             
+            display: grid;
+            transition: all;
+            transition-duration: 400ms; 
+            padding-left: 10px;
+            padding-top: 6px;
+        }  
+
+        .glass > * {
+            grid-column-start: 1;
+            grid-row-start: 1; 
+        }
+
+        .glass:hover {
+            transform: scale(1.1);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="styl">
+        <div class="item1"></div>
+        <div class="item2"></div>
+    </div>
+    <div id="clients">
+        <p>Your ID: &nbsp &nbsp <span id="client_id"></span></p>
+    </div>
+    <h1 id='title'>WebSockets Multiplayer</h1>
+    <div class="gameBtnContainer">
+        <button class="gamebtn btn btn-outline-info btn-lg" id="CreateBtn"  >New Game</button>
+        <button class="gamebtn btn btn-outline-info btn-lg" id="JoinBtn" >Join Game</button>
+    </div>
+    <div class="group">
+        <input type="text" name="GameId" id="GameId" placeholder="Paste Game ID here">
+        <span ></span>
+        <span class="bar"></span>
+    </div>
+    <div id="gameIdDiv"></div>
+    <div id="divBoard"></div>
+    <script>
+        const CreateBtn = document.getElementById("CreateBtn");
+        const JoinBtn = document.getElementById("JoinBtn");
+        const clientsDiv = document.getElementById("clients");
+        const gameDiv = document.getElementById("gameIdDiv");
+        const divBoard = document.getElementById("divBoard");
+        var GameId = null;
+        var clientId = null;
+        var client_id = document.getElementById("client_id");
+        var playerColor = null;
+        // Creating a req to webSocket
+        webSocket = new WebSocket('ws://localhost:3001');
+        webSocket.onmessage = msg => {
+            const res = JSON.parse(msg.data);
+            console.log(res);
+            if (res.method == "connect") {
+                clientId = res.clientId;
+                console.log(clientId);
+                client_id.textContent = clientId;
+            }
+            if (res.method == "create") {
+                console.log(`A Game for ${res.game} is created successfully!`);
+                GameId = res.game.gameId;
+                while (gameDiv.firstChild)
+                    gameDiv.removeChild(gameDiv.firstChild);
+                const d = document.createElement("div");
+                d.style.display = "flex";
+                d.style.flexDirection = "column";
+                d.style.width = "200px";
+                // d.style.backgroundColor = "black";
+                // d.style.borderColor = "white";
+                // d.style.color = "white";
+                d.style.borderWidth = "10px";
+                d.style.borderRadius = "30px";
+                d.style.marginBottom = "1.3em";
+                d.innerHTML += `<span id="copyText2">${GameId}</span>`;
+                d.innerHTML += `<button class="btn btn-outline-success" type="button" id="copy" onclick="withoutJquery();">Copy</button>`;
+                gameDiv.appendChild(d);
+            }
+            if (res.method == "join") {
+                const game = res.game;
+                while (clientsDiv.firstChild)
+                    clientsDiv.removeChild(clientsDiv.firstChild);
+                game.players.forEach(function (player) {
+                    const d = document.createElement("div");
+                    d.style.width = "200px";
+                    // d.style.backgroundColor = "black";
+                    d.style.borderColor = player.color;
+                    d.style.color = player.color;
+                    d.style.borderWidth = "5px";
+                    d.style.borderRadius = "30px";
+                    d.textContent = player.clientId;
+                    if (clientId == player.clientId)
+                        playerColor = player.color;
+                    clientsDiv.appendChild(d);
+                })
+                console.log(`A Game has been joined ${JSON.stringify(res, 4, null)} !`);
+                while (divBoard.firstChild)
+                    divBoard.removeChild(divBoard.firstChild);
+                for (var i = 0; i < game.tokens; i++) {
+                    const hover = document.createElement('button');
+                    hover.classList.add("glass");
+                    hover.id = 'token' + (i + 1);
+                    hover.tag = i + 1;
+                    hover.style.width = "200px";
+                    hover.style.height = "150px";
+                    hover.addEventListener("mouseover", function (e) {
+                        hover.style.backgroundColor = playerColor;
+                        hover.style.opacity =0.7;
+                        const req = {
+                            "method": "play",
+                            "clientId": clientId,
+                            "gameId": GameId,
+                            "TokenId": hover.tag,
+                            "playerColor": playerColor
+                        }
+                        webSocket.send(JSON.stringify(req));
+                    })
+                    divBoard.appendChild(hover);
+                }
+            }
+            if (res.method == "update") {
+                console.log("Hey check out bruh " + JSON.stringify(res.state, 4, "  "));
+                for (const tokenID of Object.keys(res.state)) {
+                    const token = document.getElementById('token' + tokenID);
+                    token.style.backgroundColor = res.state[tokenID];
+                    console.log("hey check out color" + token.style.backgroundColor);
+                }
+                webSocket.send(JSON.stringify(res));
+            }
+            if (res.method == "err") {
+                console.log("Error Game not found...");
+            }
+        };
+
+        // Reqest to server to create a new game
+        CreateBtn.addEventListener("click", function (event) {
+            console.log("CreateBtn clicked!");
+            const req = {
+                "method": "create",
+                "clientId": clientId
+            }
+            webSocket.send(JSON.stringify(req));
+        })
+
+        // Reqest to server to join a new game or join a game that has been created
+        JoinBtn.addEventListener("click", function (event) {
+            console.log("JointBtn clicked!");
+            console.log(GameId);
+            if (GameId == null) {
+                if (document.getElementById("GameId").value == null) {
+                    event.preventDefault();
+                } else {
+                    GameId = document.getElementById("GameId").value;
+                }
+            }
+            const req = {
+                "method": "join",
+                "clientId": clientId,
+                "gameId": GameId
+            }
+            webSocket.send(JSON.stringify(req));
+        })
+
+        function withoutJquery() {
+            console.time('time2');
+            var temp = document.createElement('input');
+            var texttoCopy = document.getElementById('copyText2').innerHTML;
+            temp.type = 'input';
+            temp.setAttribute('value', texttoCopy);
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            temp.remove();
+            console.timeEnd('time2');
+            document.getElementById('copy').innerText = "Copied!";
+        }
+    </script>
+</body>
+
+</html>
