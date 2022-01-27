@@ -11,7 +11,7 @@ const httpServer = http.createServer();
 const webSocketServer = new webSocket({ httpServer: httpServer });
 
 // Server
-webSocketServer.on("request", (req) => {
+webSocketServer.on("connection", (req) => {
   const tcpConnection = req.accept(null, req.origin, null);
   ()=>{
 
@@ -130,7 +130,10 @@ httpServer.listen(serverPort, hostname, () => {
   console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
 });
 // Client Port
-app.use((req, res)=>res.sendFile(__dirname + "/index.html"))
+app.use((req, res)=>{
+  console.log(req.url);
+  res.sendFile(__dirname + "/index.html")
+  })
 .listen(clientPort, ()=>{
   console.log(`Client Server started on http://${hostname}:${clientPort}/`);
 })
