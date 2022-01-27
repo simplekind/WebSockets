@@ -120,19 +120,20 @@ webSocketServer.on("request", (req) => {
 });
 
 // Client
-app.get("/", (req, res) => {
-  console.log(req.url);
-  res.sendFile(__dirname + "/index.html");
-});
+// app.get("/", (req, res) => {
+//   console.log(req.url);
+  
+// });
 
 // Server Port
 httpServer.listen(serverPort, hostname, () => {
   console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
 });
 // Client Port
-app.listen(clientPort, function () {
+app.use((req, res)=>res.sendFile(__dirname + "/index.html"))
+.listen(clientPort, ()=>{
   console.log(`Client Server started on http://${hostname}:${clientPort}/`);
-});
+})
 // GUID of 32 charachters
 const guid = () => {
   const s4 = () =>
