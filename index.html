@@ -262,8 +262,7 @@
         var client_id = document.getElementById("client_id");
         var playerColor = null;
         // Creating a req to webSocket
-        // webSocket = new WebSocket(`ws://localhost:${5000}`);
-        webSocket = new WebSocket(`ws://localhost:${process.env.PORT||80}`);
+        webSocket = new WebSocket(`ws://localhost:${3001}`);
         webSocket.onmessage = msg => {
             const res = JSON.parse(msg.data);
             console.log(res);

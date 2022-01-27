@@ -1,6 +1,6 @@
 const http = require("http");
-const serverPort =  process.env.PORT || 8080;
-const clientPort = 3000;
+const serverPort =  3001;
+const clientPort = process.env.PORT || 3000;
 const hostname = "localhost";
 const express = require("express");
 const app = express();
