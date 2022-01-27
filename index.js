@@ -1,5 +1,5 @@
 const http = require("http");
-const serverPort = 3001;
+const serverPort =  process.env.PORT || 8080;
 const clientPort = 3000;
 const hostname = "localhost";
 const express = require("express");
@@ -126,11 +126,11 @@ app.get("/", (req, res) => {
 });
 
 // Server Port
-httpServer.listen(process.env.PORT || serverPort, hostname, () => {
+httpServer.listen(serverPort, hostname, () => {
   console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
 });
 // Client Port
-app.listen(process.env.PORT ||clientPort, function () {
+app.listen(clientPort, function () {
   console.log(`Client Server started on http://${hostname}:${clientPort}/`);
 });
 // GUID of 32 charachters
