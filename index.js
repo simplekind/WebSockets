@@ -1,28 +1,50 @@
-const http = require("http");
-const serverPort =  3001;
 const clientPort = process.env.PORT || 3000;
-const hostname = "localhost";
+const hostname = "127.0.0.1";
 const express = require("express");
 const app = express();
-const webSocket = require("websocket").server;
 const clients = new Map(); // HashMap to store clients
 const games = new Map(); // HashMap to store games
-const httpServer = http.createServer();
-const webSocketServer = new webSocket({ httpServer: httpServer });
 
+// Client
+// app.get("/", (req, res) => {
+//   console.log(req.url);
+//   res.sendFile(__dirname + "/index.html");
+// });
+
+// // Server Port
+// httpServer.listen(serverPort, hostname, () => {
+//   console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
+// });
+// Client Port
+const server = app
+.use((req, res) => {
+  console.log(req.url);
+  res.sendFile(__dirname + "/index.html");
+})
+.listen(clientPort, function () {
+  console.log(`Client Server started on http://${hostname}:${clientPort}/`);
+});
+const {Server} = require('ws');
+const webSocketServer = new Server({server});
+// console.log(httpServer);
+// GUID of 32 charachters
+const guid = () => {
+  const s4 = () =>
+    Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}`;
+};
 // Server
-webSocketServer.on("connection", (req) => {
-  const tcpConnection = req.accept(null, req.origin, null);
-  ()=>{
-
-  }
+webSocketServer.on("connection", (tcpConnection) => {
+  // const tcpConnection = req.accept(null, req.origin, null);
   // accepting the request
   tcpConnection.on("open", () => console.log("Connection is now opened!"));
   tcpConnection.on("close", () => console.log("Connection is now closed!"));
   // receiving the message
   tcpConnection.on("message", (msg) => {
     console.log("Message received!");
-    const req = JSON.parse(msg.utf8Data); // Create game message object
+    const req = JSON.parse(msg); // Create game message object
     console.log(req);
     if (req.method == "create") {
       const clientId = req.clientId;
@@ -119,29 +141,3 @@ webSocketServer.on("connection", (req) => {
   tcpConnection.send(JSON.stringify(dataTransfer)); // sending back response of client saying to connect this clientID
 });
 
-// Client
-// app.get("/", (req, res) => {
-//   console.log(req.url);
-  
-// });
-
-// Server Port
-httpServer.listen(serverPort, hostname, () => {
-  console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
-});
-// Client Port
-app.use((req, res)=>{
-  console.log(req.url);
-  res.sendFile(__dirname + "/index.html")
-  })
-.listen(clientPort, ()=>{
-  console.log(`Client Server started on http://${hostname}:${clientPort}/`);
-})
-// GUID of 32 charachters
-const guid = () => {
-  const s4 = () =>
-    Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}`;
-};

@@ -4,14 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start":"nodemon index.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "H",
   "license": "ISC",
   "dependencies": {
+    "bufferutil": "^4.0.6",
     "express": "^4.17.2",
     "nodemon": "^2.0.15",
-    "websocket": "^1.0.34"
+    "utf-8-validate": "^5.0.8",
+    "websocket": "^1.0.34",
+    "ws": "^8.4.2"
   }
 }
