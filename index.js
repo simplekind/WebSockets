@@ -126,11 +126,11 @@ app.get("/", (req, res) => {
 });
 
 // Server Port
-httpServer.listen(serverPort, hostname, () => {
+httpServer.listen(process.env.PORT || serverPort, hostname, () => {
   console.log(`HTTP Server started on http://${hostname}:${serverPort}/`);
 });
 // Client Port
-app.listen(clientPort, function () {
+app.listen(process.env.PORT ||clientPort, function () {
   console.log(`Client Server started on http://${hostname}:${clientPort}/`);
 });
 // GUID of 32 charachters
